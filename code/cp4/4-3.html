@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<title>2-1</title>
+		<meta name="viewport" content="width=device-width; initial-scale=1.0">
+		<style>
+			body{
+				background:#B6EFE7;
+			}
+			#canvas{
+				margin:10px auto 0;
+				background:#B6EFE7;
+				border:thin inset #aaaaaa;
+			}
+		</style>
+	</head>
+
+	<body>
+		<canvas id="canvas" width="600" height="600">
+			你的浏览器不支持该元素
+		</canvas>
+		<div id="controls">
+			<output id="scaleOutput">1.0</output>
+			<input id="scaleSlider" type="range" min="1" max="3" step="0.01" value="1.0" />
+		</div>
+		<script type="text/javascript">
+			var canvas=document.getElementById("canvas"),
+			context=canvas.getContext("2d");
+			
+			var image=new Image(),
+			scaleOutput=document.getElementById("scaleOutput"),
+			scaleSlider=document.getElementById("scaleSlider"),
+			scale=1.0,
+			MINIMUM_SCALE=1.0,
+			MAXIMUM_SCALE=3.0;
+			
+			function drawScale(){
+				var w=canvas.width,
+				h=canvas.height,
+				sw=w*scale,
+				sh=h*scale;
+				
+				context.clearRect(0,0,canvas.width,canvas.height);
+				context.drawImage(image,0,0,canvas.width,canvas.height);
+				
+				drawWatermark();
+				context.drawImage(canvas,0,0,canvas.width,canvas.height,
+								  -sw/2+w/2,-sh/2+h/2,sw,sh);
+				
+			}
+			
+			function darwImage(){
+				var w=canvas.width,
+				h=canvas.height,
+				sw=w*scale,
+				sh=h*scale;
+				
+				context.clearRect(0,0,canvas.width,canvas.height);
+				context.drawImage(image,-sw/2+w/2,-sh/2+h/2,sw,sh);
+			}
+			
+			function drawScaleText(value){
+				var text=parseFloat(value).toFixed(2);
+				var percent=parseFloat(value-MINIMUM_SCALE)/
+							parseFloat(MAXIMUM_SCALE-MINIMUM_SCALE);
+							
+				scaleOutput.innerText=text;
+				percent=percent<0.35?0.35:percent;
+				scaleOutput.style.fontSize=percent*MAXIMUM_SCALE/1.5+"em";
+			}
+			
+			function drawWatermark(){
+				var lineOne="Copyright",lineTwo="xinxin",
+							textMetrics,
+							FONT_HEIGHT=128;
+				context.save();
+				context.font=FONT_HEIGHT+"px Arial";
+				textMetrics=context.measureText(lineOne);
+				context.globalAlpha=0.6;
+				context.translate(canvas.width/2,
+									canvas.height/2-FONT_HEIGHT/2);
+				context.fillText(lineOne,-textMetrics.width/2,0);
+				context.strokeText(lineOne,-textMetrics.width/2,0);
+				
+				textMetrics=context.measureText(lineTwo);
+				context.fillText(lineTwo,-textMetrics.width/2,FONT_HEIGHT);
+				context.strokeText(lineTwo,-textMetrics.width/2,FONT_HEIGHT);
+				context.restore();
+			}
+			
+			scaleSlider.onchange=function(e){
+				scale=e.target.value;
+				if(scale<MINIMUM_SCALE){
+					scale=MINIMUM_SCALE;
+				}else if(scale>MAXIMUM_SCALE){
+					scale=MAXIMUM_SCALE;
+				}
+				
+				drawScale();
+				drawScaleText(scale);
+			};
+			context.fillStyle="cornflowerblue";
+			context.strokeStyle="yellow";
+			context.shadowColor="rgba(50,50,50,1.0)";
+			context.shadowOffsetX=5;
+			context.shadowOffsetY=5;
+			context.shadowBlur=10;
+			
+			var glassSize=150;
+			var scale=1.0;
+			
+			image.src="img/flower.jpg";
+			image.onload=function(e){
+				context.drawImage(image,0,0,canvas.width,canvas.height);
+				drawWatermark();
+				drawScaleText(scaleSlider.value);
+			};
+		</script>
+	</body>
+</html>

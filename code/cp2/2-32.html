@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<title>绘制</title>
+		<meta name="viewport" content="width=device-width; initial-scale=1.0">
+		<style>
+			body {
+				background: #dddddd;
+			}
+			#canvas {
+				margin: 10px auto 0;
+				background: #fff;
+				border: thin inset #aaaaaa;
+			}
+		</style>
+	</head>
+
+	<body>
+		<h1>图像合成</h1>
+		<canvas id="canvas" width="600" height="600">
+			你的浏览器不支持该元素
+		</canvas>
+		<select id="compositingSelect" size="11">
+			<option value="source-atop">source-atop</option>
+			<option value="source-in">source-in</option>
+			<option value="source-out">source-out</option>
+			<option value="source-over">source-over</option>
+			<option value="destination-atop">destination-atop</option>
+			<option value="destination-in">destination-in</option>
+			<option value="destination-out">destination-out</option>
+			<option value="desination-over">desination-over</option>
+			<option value="lighter">lighter</option>
+			<option value="copy">copy</option>
+			<option value="xor">xor</option>
+		</select>
+		
+		<script type="text/javascript">
+            var canvas = document.getElementById("canvas"), context = canvas.getContext("2d");
+            var selectElement=document.getElementById("compositingSelect");
+            
+            function drawText(){
+            	context.save();
+            	
+            	context.fillStyle='cornflowerblue';
+            	
+            	context.fillText("HTML5",20,250);
+            	
+            	context.strokeStyle="yellow";
+            	context.strokeText("HTML5",20,250);
+            	
+            	context.restore();
+            }
+            
+            function windowToCanvas(canvas,x,y){
+            	var bbox=canvas.getBoundingClientRect();
+            	return{
+            		x:x-bbox.left*(canvas.width/bbox.width),
+            		y:y-bbox.top*(canvas.height/bbox.height)
+            	};
+            }
+            
+            context.canvas.onmousemove=function(e){
+            	var loc=windowToCanvas(context.canvas,e.clientX,e.clientY);
+            	context.clearRect(0,0,context.canvas.width,context.canvas.height);
+            	
+            	drawText();
+            	
+            	context.save();
+            	context.globalCompositeOperation=selectElement.value;
+            	context.beginPath();
+            	context.arc(loc.x,loc.y,100,0,Math.PI*2,false);
+            	context.fillStyle="orange";
+            	context.stroke();
+            	context.fill();
+            	
+            	context.restore();
+            };
+            
+            selectElement.selectedIndex=3;
+            context.lineWidth=0.5;
+            context.font='128pt Comic-sans';
+            drawText();
+		</script>
+	</body>
+</html>

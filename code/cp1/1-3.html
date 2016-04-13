@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<title>1-1</title>
+		<meta name="viewport" content="width=device-width; initial-scale=1.0">
+		<style>
+			body{
+				background:red;
+			}
+			#canvas{
+				margin:10px auto 0;
+				padding:10px;
+				background:#ffffff;
+				border:thin inset #aaaaaa;
+			}
+		</style>
+	</head>
+
+	<body>
+		<canvas id="canvas" width="600" height="300">
+			你的浏览器不支持该元素
+		</canvas>
+		<script type="text/javascript">
+			var canvas=document.getElementById("canvas"),
+			context=canvas.getContext("2d");
+			function windowToCanvas(canvas,x,y){
+				var bbox=canvas.getBoundingClientRect();
+				return {
+					x:x-bbox.left*(canvas.width/bbox.width),
+					y:y-bbox.top*(canvas.height/bbox.height)
+				};
+			}
+			var spritesheet=new Image();
+			
+			function drawBackground(){
+				var VERTICAL_LINE_SPACING=12,i=context.canvas.height;
+				context.clearRect(0,0,canvas.width,canvas.height);
+				context.strokeStyle="lightgray";
+				context.lineWidth=0.5;
+				
+				while(i>VERTICAL_LINE_SPACING*4){
+					context.beginPath();
+					context.moveTo(0,i);
+					context.lineTo(context.canvas.width,i);
+					context.stroke();
+					i-=VERTICAL_LINE_SPACING;
+				}
+			}
+			
+			canvas.onmousemove=function(e){
+				var loc=windowToCanvas(canvas,e.clientX,e.clientY);
+				console.log(loc.x);
+			};
+			
+		</script>
+	</body>
+</html>

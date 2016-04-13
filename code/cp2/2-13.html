@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<title>绘制</title>
+		<meta name="viewport" content="width=device-width; initial-scale=1.0">
+		<style>
+			body {
+				background: #dddddd;
+			}
+			#canvas {
+				margin: 10px auto 0;
+				background: #99D6CE;
+				border: thin inset #aaaaaa;
+			}
+		</style>
+	</head>
+
+	<body>
+		<canvas id="canvas" width="600" height="600">
+			你的浏览器不支持该元素
+		</canvas>
+		<script type="text/javascript">
+            var canvas = document.getElementById("canvas"), context = canvas.getContext("2d");
+            function drawGrid(context,color,stepx,stepy){
+            	context.strokeStyle=color;
+            	context.lineWidth=0.5;
+            	for(var i=stepx+0.5;i<context.canvas.width;i+=stepx){
+            		context.beginPath();
+            		context.moveTo(i,0);
+            		context.lineTo(i,context.canvas.height);
+            		context.stroke();
+            	}
+            	for(var i=stepy+0.5;i<context.canvas.height;i+=stepy){
+            		context.beginPath();
+            		context.moveTo(0,i);
+            		context.lineTo(context.canvas.width,i);
+            		context.stroke();
+            	}
+            }
+            drawGrid(context,"red",10,10);
+		</script>
+	</body>
+</html>

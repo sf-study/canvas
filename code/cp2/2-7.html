@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<title>绘制</title>
+		<meta name="viewport" content="width=device-width; initial-scale=1.0">
+		<style>
+			body {
+				background: #dddddd;
+			}
+			#canvas {
+				margin: 10px auto 0;
+				background: #99D6CE;
+				border: thin inset #aaaaaa;
+			}
+		</style>
+	</head>
+
+	<body>
+		<canvas id="canvas" width="600" height="600">
+			你的浏览器不支持该元素
+		</canvas>
+		<script type="text/javascript">
+            var canvas = document.getElementById("canvas"), context = canvas.getContext("2d");
+            context.lineWidth=4;
+            context.strokeStyle="red";
+            context.shadowColor="rgba(0,0,0,0.7)";
+            context.shadowOffsetX=-5;
+            context.shadowOffsetY=-5;
+            context.shadowBlur=5;
+            context.beginPath();
+            context.strokeRect(50,50,100,100);
+            context.beginPath();
+            context.rect(200,200,100,100);
+            context.stroke();
+            // context.beginPath();
+            context.rect(400,400,100,100);
+            context.stroke();
+            context.fill();
+		</script>
+	</body>
+</html>

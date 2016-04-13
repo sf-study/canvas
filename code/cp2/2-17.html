@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<title>绘制</title>
+		<meta name="viewport" content="width=device-width; initial-scale=1.0">
+		<style>
+			body {
+				background: #dddddd;
+			}
+			#canvas {
+				margin: 10px auto 0;
+				background: #fff;
+				border: thin inset #aaaaaa;
+			}
+		</style>
+	</head>
+
+	<body>
+		<canvas id="canvas" width="600" height="600">
+			你的浏览器不支持该元素
+		</canvas>
+		<script type="text/javascript">
+            var canvas = document.getElementById("canvas"), context = canvas.getContext("2d");
+            function drawDashedLine(context,x1,y1,x2,y2,dashLength){
+            	dashLength=dashLength===undefined?5:dashLength;
+            	var deltaX=x2-x1;
+            	var deltaY=y2-y1;
+            	var numDashes=Math.floor(Math.sqrt(deltaX*deltaX+deltaY*deltaY)/dashLength);
+            	for(var i=0;i<numDashes;i++){
+            		context[i%2===0?"moveTo":"lineTo"](x1+(deltaX / numDashes)*i,y1+(deltaY / numDashes)*i);
+            	}
+            	context.stroke();
+            }
+            context.lineWidth=3;
+            context.strokeStyle="blue";
+            drawDashedLine(context,20,20,context.canvas.width-20,20);
+		</script>
+	</body>
+</html>

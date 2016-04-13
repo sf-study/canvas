@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<title>绘制</title>
+		<meta name="viewport" content="width=device-width; initial-scale=1.0">
+		<style>
+			body {
+				background: #dddddd;
+			}
+			#canvas {
+				margin: 10px auto 0;
+				background: #fff;
+				border: thin inset #aaaaaa;
+			}
+		</style>
+	</head>
+
+	<body>
+		<h1>剪辑区域</h1>
+		<canvas id="canvas" width="600" height="600">
+			你的浏览器不支持该元素
+		</canvas>
+		
+
+		<script type="text/javascript">
+            var canvas = document.getElementById("canvas"), 
+            	context = canvas.getContext("2d");
+            
+            context.beginPath();
+	        context.fillStyle="#000";
+	        context.rect(0,0,canvas.width,canvas.height);
+	        context.fill();
+	        context.save();
+	        context.beginPath();
+	        context.strokeStyle="#fff";
+	        context.arc(canvas.width/2,
+	        			canvas.height/2,200,
+	        			0,Math.PI*2,false);
+			context.clip();
+			context.stroke();
+	        context.restore();
+		</script>
+	</body>
+</html>

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<title>绘制</title>
+		<meta name="viewport" content="width=device-width; initial-scale=1.0">
+		<style>
+			body {
+				background: #dddddd;
+			}
+			#canvas {
+				margin: 10px auto 0;
+				background: #fff;
+				border: thin inset #aaaaaa;
+			}
+		</style>
+	</head>
+
+	<body>
+		<h1>坐标转换</h1>
+		<canvas id="canvas" width="600" height="600">
+			你的浏览器不支持该元素
+		</canvas>
+		
+		<script type="text/javascript">
+            var canvas = document.getElementById("canvas"), context = canvas.getContext("2d");
+            var RECTANGLE_WIDTH=100,
+            RECTANGLE_HEIGHT=100;
+            context.transform(1,0,0.75,1,0,0);
+            context.strokeRect(0,0,RECTANGLE_WIDTH,RECTANGLE_HEIGHT);
+		</script>
+	</body>
+</html>

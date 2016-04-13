@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<title>绘制</title>
+		<meta name="viewport" content="width=device-width; initial-scale=1.0">
+		<style>
+			body{
+				background:#dddddd;
+			}
+			#canvas{
+				margin:10px auto 0;
+				background:#ffffff;
+				border:thin inset #aaaaaa;
+			}
+		</style>
+	</head>
+
+	<body>
+		<canvas id="canvas" width="600" height="600">
+			你的浏览器不支持该元素
+		</canvas>
+		<script type="text/javascript">
+			var canvas=document.getElementById("canvas"),
+			context=canvas.getContext("2d");
+			var gradient=context.createRadialGradient(canvas.width/2,canvas.height,10,canvas.width/2,0,100);
+			gradient.addColorStop(0,"blue");
+			gradient.addColorStop(0.25,"white");
+			gradient.addColorStop(0.5,"purple");
+			gradient.addColorStop(0.75,"red");
+			gradient.addColorStop(1,"yellow");
+			
+			context.fillStyle=gradient;
+			context.fillRect(0,0,canvas.width,canvas.height);
+			
+		</script>
+	</body>
+</html>

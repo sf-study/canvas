@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<title>绘制</title>
+		<meta name="viewport" content="width=device-width; initial-scale=1.0">
+		<style>
+			body {
+				background: #dddddd;
+			}
+			#canvas {
+				margin: 10px auto 0;
+				background: #99D6CE;
+				border: thin inset #aaaaaa;
+			}
+		</style>
+	</head>
+
+	<body>
+		<canvas id="canvas" width="600" height="600">
+			你的浏览器不支持该元素
+		</canvas>
+		<script type="text/javascript">
+            var canvas = document.getElementById("canvas"), context = canvas.getContext("2d");
+            var AXIS_MARGIN=40;//轴线距离
+            var AXIS_ORIGIN={x:AXIS_MARGIN,y:canvas.height-AXIS_MARGIN};//x轴y轴的交叉点
+            var AXIS_TOP=AXIS_MARGIN;//坐标距离canvas上面边框的距离
+            var AXIS_RIGHT=canvas.width-AXIS_MARGIN;//坐标距离canvas右面边框的距离
+            var HORIZONTAL_TICK_SPACING=10;//水平方向标记之间的间距值
+            var VERTICAL_TICK_SPACING=10;//垂直方向标记之间的间距值
+            var AXIS_WIDTH=AXIS_RIGHT-AXIS_ORIGIN.x;//水平轴线宽度
+            var AXIS_HEIGHT=AXIS_ORIGIN.y-AXIS_TOP;//垂直轴线高度
+            //垂直方向轴线上标记的数量
+            var NUM_VERTICAL_TICKS=AXIS_HEIGHT/VERTICAL_TICK_SPACING;
+            //水平方向轴线上标记的数量
+            var NUM_HORIZONTAL_TICKS=AXIS_WIDTH/HORIZONTAL_TICK_SPACING;
+            
+            var TICK_WIDTH=10;//标记的宽度
+            var TICKS_LINEWIDTH=0.5;//标记的线宽
+            var TICKS_COLOR="navy";//颜色
+            
+            var AXIS_LINEWIDTH=1.0;//轴线的宽度
+            var AXIS_COLOR="blue";//坐标轴线的颜色
+            
+            //水平坐标轴
+            function drawHorizontalAxis(){
+            	context.beginPath();
+            	context.moveTo(AXIS_ORIGIN.x,AXIS_ORIGIN.y);
+            	context.lineTo(AXIS_RIGHT,AXIS_ORIGIN.y);
+            	context.stroke();
+            }
+            //垂直坐标轴
+            function drawVerticalAxis(){
+            	context.beginPath();
+            	context.moveTo(AXIS_ORIGIN.x,AXIS_ORIGIN.y);
+            	context.lineTo(AXIS_ORIGIN.x,AXIS_TOP);
+            	context.stroke();
+            }
+            //垂直坐标轴上面的标记
+            function drawVerticalAxisTicks(){
+            	var deltaX;
+            	for(var i=1;i<NUM_VERTICAL_TICKS;i++){
+            		context.beginPath();
+            		if(i%5===0){
+            			deltaX=TICK_WIDTH;
+            		}else{
+            			deltaX=TICK_WIDTH/2;
+            		}
+            		context.moveTo(AXIS_ORIGIN.x-deltaX,AXIS_ORIGIN.y-i*VERTICAL_TICK_SPACING);
+            		context.lineTo(AXIS_ORIGIN.x+deltaX,AXIS_ORIGIN.y-i*VERTICAL_TICK_SPACING);
+            		context.stroke();
+            	}
+            }
+            //
+            function drawHorizontalAxisTicks(){
+            	var deltaY;
+            	for(var i=1;i<NUM_VERTICAL_TICKS;i++){
+            		context.beginPath();
+            		if(i%5===0){
+            			deltaY=TICK_WIDTH;
+            		}else{
+            			deltaY=TICK_WIDTH/2;
+            		}
+            		context.moveTo(AXIS_ORIGIN.x+i*HORIZONTAL_TICK_SPACING,AXIS_ORIGIN.y-deltaY);
+            		context.lineTo(AXIS_ORIGIN.x+i*HORIZONTAL_TICK_SPACING,AXIS_ORIGIN.y+deltaY);
+            		context.stroke();
+            	}
+            }
+            
+            //坐标轴
+            function drawAxes(){
+            	context.save();
+            	context.strokeStyle=AXIS_COLOR;
+            	context.lineWidth=AXIS_LINEWIDTH;
+            	
+            	drawHorizontalAxis();
+            	drawVerticalAxis();
+            	
+            	context.lineWidth=0.5;
+            	context.lineWidth=TICKS_LINEWIDTH;
+            	context.strokeStyle=TICKS_COLOR;
+            	
+            	drawVerticalAxisTicks();
+            	drawHorizontalAxisTicks();
+            }
+            drawAxes();
+		</script>
+	</body>
+</html>
