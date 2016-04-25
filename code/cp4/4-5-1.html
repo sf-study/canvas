@@ -35,7 +35,7 @@
 			rubberbandRectangle={},
 			dragging=false;
 			
-			var imageDataCopy;
+			var imageDataCopy=context.createImageData(canvas.width,canvas.height);
 			
 			function windowToCanvas(canvas,x,y){
 				var canvasRectangle = canvas.getBoundingClientRect();
@@ -48,12 +48,12 @@
 			
 			function copyCanvasPixels(){
 				var i=0;
-				
+// 				先遍历前三个像素
 				for(i=0;i<3;i++){
 					imageDataCopy.data[i]=imageData.data[i];
 				}
-				
-				for(i=3;i<imageData.data.length;i+=4){
+// 				从第四个像素开始循环，并将每个像素的透明度减半
+				for(i=3;i<imageData.data.length-4;i+=4){
 					imageDataCopy.data[i]=imageData.data[i]/2;
 					imageDataCopy.data[i+1]=imageData.data[i+1];
 					imageDataCopy.data[i+2]=imageData.data[i+2];
@@ -62,52 +62,59 @@
 			}
 			
 			function captureRubberbandPixels(){
+// 				获得整个canvas的像素
 				imageData=context.getImageData(0,0,canvas.width,canvas.height);
+// 				复制像素并操作透明度
 				copyCanvasPixels();
 			}
 			
 			function restoreRubberbandpixels(){
+// 				计算设备像素和css像素的比例
 				var deviceWidthOverCSSPixels = imageData.width / canvas.width,
 				    deviceHeightOverCSSPixels = imageData.height / canvas.height;
-				   
+// 				绘制先前复制的整个canvas像素
 			    context.putImageData(imageData,0,0);
-			    
-			    context.strokeRect(imagerubberbandRectangle.left+context.lineWidth,
+// 			           绘制复制后的imageDataCopy像素，从00坐标开始
+			    context.putImageData(imageDataCopy,0,0,
+			    					rubberbandRectangle.left+context.lineWidth,
 									rubberbandRectangle.top+context.lineWidth,
-									rubberbandRectangle.width-2*context.lineWidth,
-									rubberbandRectangle.height-2*context.lineWidth);
-			}
-			
-			function drawRubberband(){
-				context.strokeRect(rubberbandRectangle.left+context.lineWidth,
-									rubberbandRectangle.top+context.lineWidth,
-									rubberbandRectangle.width-2*context.lineWidth,
-									rubberbandRectangle.height-2*context.lineWidth);
+									(rubberbandRectangle.width-2*context.lineWidth)*deviceWidthOverCSSPixels,
+									(rubberbandRectangle.height-2*context.lineWidth)*deviceHeightOverCSSPixels);
 			}
 			
 			function setRubberbandRectangle(x,y){
+// 				设置橡皮筋矩形
 				rubberbandRectangle.left=Math.min(x,mousedown.x);
 				rubberbandRectangle.top=Math.min(y,mousedown.y);
 				rubberbandRectangle.width=Math.abs(x-mousedown.x);
 				rubberbandRectangle.height=Math.abs(y-mousedown.y);
 			}
 			
-			function updateRubberband(){
-				captureRubberbandPixels();
-				drawRubberband();
+			function drawRubberband(){
+// 				描边
+				context.strokeRect(rubberbandRectangle.left+context.lineWidth,
+						rubberbandRectangle.top+context.lineWidth,
+						rubberbandRectangle.width-2*context.lineWidth,
+						rubberbandRectangle.height-2*context.lineWidth);
 			}
 			
 			function rubberbandStart(x,y){
+// 				mousedown记录鼠标按下时候的坐标
 				mousedown.x=x;
 				mousedown.y=y;
-				
+// 				橡皮筋矩形的起始左边是鼠标按下的坐标，初始宽高是0
 				rubberbandRectangle.left=mousedown.x;
 				rubberbandRectangle.top=mousedown.y;
+				rubberbandRectangle.width=0;
+				rubberbandRectangle.height=0;
 				
 				dragging=true;
+// 				获得橡皮筋像素
+				captureRubberbandPixels();
 			}
 			
 			function rubberbandStretch(x,y){
+// 				如果橡皮筋矩形的宽度大于两倍的边框的宽度，并且高度大于两倍的边框宽度
 				if(rubberbandRectangle.width>2*context.lineWidth&&
 					rubberbandRectangle.height>2*context.lineWidth){
 						if(imageData!==undefined){
@@ -119,11 +126,14 @@
 					
 					if(rubberbandRectangle.width>2*context.lineWidth&&
 						rubberbandRectangle.height>2*context.lineWidth){
-							updateRubberband();
+// 							对矩形描边
+							drawRubberband();
 						}
 			}
 			
 			function rubberbandEnd(){
+// 				
+				context.putImageData(imageData,0,0);
 				context.drawImage(canvas,
 									rubberbandRectangle.left + context.lineWidth*2,
 									rubberbandRectangle.top+context.lineWidth*2,
@@ -135,15 +145,20 @@
 			}
 			
 			canvas.onmousedown=function(e){
+// 				鼠标按下获取点击左边，并调用windowToCanvas()方法将屏幕坐标转换成canvas坐标
 				var loc=windowToCanvas(canvas,e.clientX,e.clientY);
-				
+// 				屏蔽默认的事件
 				e.preventDefault();
+// 				开始绘制橡皮筋
 				rubberbandStart(loc.x,loc.y);
 			};
 			canvas.onmousemove=function(e){
 				var loc;
+// 				鼠标移动的时候，如果允许拖动
 				if(dragging){
+// 					获取鼠标坐标，并调用windowToCanvas()方法将屏幕坐标转换成canvas坐标
 					loc=windowToCanvas(canvas,e.clientX,e.clientY);
+// 					橡皮筋拉伸
 					rubberbandStretch(loc.x,loc.y);
 				}
 			};
