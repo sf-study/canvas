@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<title>2-1</title>
+		<meta name="viewport" content="width=device-width; initial-scale=1.0">
+		<style>
+			body{
+				background:#B6EFE7;
+			}
+			#canvas{
+				margin:10px auto 0;
+				background:#B6EFE7;
+				border:thin inset #aaaaaa;
+			}
+		</style>
+	</head>
+
+	<body>
+	<h1>以图像制作动画</h1>
+	<h2>将图像从canvas中淡出</h2>
+		<canvas id="canvas" width="600" height="600">
+			你的浏览器不支持该元素
+		</canvas>
+		<div id="controls">
+			<input type="button" id="Button" value="点击按钮淡入图像" />
+		</div>
+		<script type="text/javascript">
+			var canvas=document.getElementById("canvas"),
+			context=canvas.getContext("2d");
+			
+			var image=new Image(),
+			imagedata,
+			myButton=document.getElementById("Button"),
+			interval=null;
+			
+			var offscreenCanvas=document.createElement("canvas"),
+			offScreenContext=offscreenCanvas.getContext("2d"),
+			imagedataOffScreen;
+
+			function increaseTransparency(imagedata,steps){
+				var alpha,currentAlpha,
+				step,length=imagedata.data.length;
+
+				for(var i=3;i<length;i+=4){
+					alpha=imagedataOffScreen.data[i];
+					
+					if(alpha>0){
+						currentAlpha=imagedata.data[i];
+						step=Math.ceil(alpha/steps);
+						if(currentAlpha+step<=alpha){
+							imagedata.data[i]+=step;
+						}else{
+							imagedata.data[i]=alpha;
+						}
+					}
+				}
+			}
+			
+			function fadeIn(context,imagedata,steps,millisecondsPerStep){
+				var frame=0,
+				length=imagedata.data.length;
+				
+				for(var i=3;i<length;i+=4){
+					imagedata.data[i]=0;
+				}
+				
+				interval=setInterval(function(){
+					frame++;
+					if(frame>steps){
+						clearInterval(interval);
+					}else{
+// 						降低imagedata的像素
+						increaseTransparency(imagedata,steps);
+						context.putImageData(imagedata,0,0);
+					}
+				},millisecondsPerStep);
+			}
+			
+			function animationComplete(){
+				setTimeout(function(){
+					context.clearRect(image,0,0,canvas.width,canvas.height);
+				},1000);
+			}
+			
+			
+			
+			myButton.onclick=function(){
+				imagedataOffScreen=offScreenContext.getImageData(0,0,canvas.width,canvas.height);
+				fadeIn(context,offScreenContext.getImageData(0,0,canvas.width,canvas.height),
+				50,10000/60);
+			};
+			
+			image.src="img/kitty.jpg";
+			image.onload=function(){
+				offscreenCanvas.width=canvas.width;
+				offscreenCanvas.height=canvas.height;
+				offScreenContext.drawImage(image,0,0);
+			};
+		</script>
+	</body>
+</html>
