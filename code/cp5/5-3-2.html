@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<title>2-1</title>
+		<meta name="viewport" content="width=device-width; initial-scale=1.0">
+		<style>
+			body{
+				background:#dddddd;
+			}
+			canvas{
+				margin:10px auto 0;
+				background:#ffffff;
+				border:thin inset #aaaaaa;
+			}
+		</style>
+	</head>
+
+	<body>
+		<canvas id="canvas" width="600" height="600">
+			你的浏览器不支持该元素
+		</canvas>
+		<script type="text/javascript">
+			window.requestNextAnimationFrame=(function(){
+				var originalWebkitMethod,
+				wrapper=undefined,
+				callback=undefined,
+				geckoVersion=0,
+				userAgent=navigator.userAgent,
+				index=0,
+				self=this;
+				
+				if(window.webkitRequestAnimationFrame){
+					wrapper=function(time){
+						if(time===undefined){
+							tine=+new Date();
+						}
+						self.callback(time);
+					};
+					
+					originalWebkitMethod=window.webkitRequestAnimationFrame;
+					
+					window.webkitRequestAnimationFrame=function(callback,element){
+						originalWebkitMethod(wrapper,element);
+					};
+				}
+				
+				if(window.mozRequestAnimationFrame){
+					index=userAgent.indexOf('rv:');
+					
+					if(userAgent.indexOf('Gecko')!=-1){
+						geckoVersion=unserAgent.substr(index+3,3);
+						if(geckoVersion==='2.0'){
+							window.mozRequestAnimationFrame=undefined;
+						}
+					}
+				}
+				
+				return window.requestAnimationFrame||
+				window.webkitRequestAnimationFrame||
+				window.mozRequestAnimationFrame||
+				window.msRequestAnimationFrame||
+				function(callback,element){
+					var self=this,start,finash;
+					
+					window.setTimeout(function(){
+						start=+new Date();
+						callback(start);
+						finish=+new Date();
+						self.timeout=1000/60;
+					},self.timeout);
+				}
+			})();
+			console.log(window.requestNextAnimationFrame);
+
+			var canvas = document.getElementById('canvas'),
+			    context = canvas.getContext('2d');
+
+			function draw(){
+				var numDiscs,disc,i;
+
+				for(i=0;i<numDiscs;++i){
+
+				}
+
+				for(i=0;i<numDiscs;++i){
+
+				}
+			}
+
+			function drwaDiscBackground(disc){
+				context.save();
+
+				context.beginPath();
+				context.arc(disc.lastX,disc.lastY,disc.darius+i,0,Math.PI*2,false);
+				context.clip();
+				eraseBackground();
+				drawBackground();
+
+				context.restore();
+			}
+		</script>
+		
+	</body>
+</html>
