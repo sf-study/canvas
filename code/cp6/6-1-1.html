@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Sprite Clock</title>
+
+    <style>
+      #canvas {
+         background: #fefefe;
+         padding: 30px;
+         margin-top: 20px;
+         margin-bottom: 20px;
+         margin-left: 20px;
+         border: thin solid lightgray;
+         -webkit-box-shadow: 4px 4px 8px rgba(0,0,0,0.5);
+         -moz-box-shadow: 4px 4px 8px rgba(0,0,0,0.5);
+         box-shadow: 4px 4px 8px rgba(0,0,0,0.5);
+      }
+    </style>
+  </head>
+
+   <body>
+      <canvas id='canvas' width='500' height='500'>
+         Canvas not supported
+      </canvas>
+
+    <script src = '../shared/js/requestNextAnimationFrame.js'></script>
+    <script src = '../shared/js/sprites.js'></script>
+    <script>
+      var canvas = document.getElementById('canvas'),
+      context = canvas.getContext('2d'),
+
+      RADIUS=75;
+
+      // Painter...................................................
+
+      ballPainter = {
+        paint: function (sprite, context) { 
+           
+           context.beginPath();
+           context.arc(sprite.left+sprite.width/2,
+                        sprite.top+sprite.height/2,
+                        RADIUS, 0, Math.PI*2, false);
+           context.clip();
+
+           context.shadowColor = 'rgb(0,0,0)';
+           context.shadowOffsetX = -4;
+           context.shadowOffsetY = -4;
+           context.shadowBlur = 8;
+
+           context.fillStyle = 'rgba(218, 165, 32, 0.1)';
+           context.fill();
+
+           context.lineWidth = 2;
+           context.strokeStyle = 'rgb(100,100,195)';
+           context.stroke();
+
+           context.restore();
+         }
+      },
+
+      // Sprite....................................................
+
+      ball = new Sprite('ball', ballPainter);
+
+      // Functions.....................................................
+
+      function drawGrid(color, stepx, stepy) {
+         context.save()
+
+         context.shadowColor = undefined;
+         context.shadowBlur = 0;
+         context.shadowOffsetX = 0;
+         context.shadowOffsetY = 0;
+         
+         context.strokeStyle = color;
+         context.fillStyle = '#ffffff';
+         context.lineWidth = 0.5;
+         context.fillRect(0, 0, context.canvas.width, context.canvas.height);
+
+         for (var i = stepx + 0.5; i < context.canvas.width; i += stepx) {
+           context.beginPath();
+           context.moveTo(i, 0);
+           context.lineTo(i, context.canvas.height);
+           context.stroke();
+         }
+
+         for (var i = stepy + 0.5; i < context.canvas.height; i += stepy) {
+           context.beginPath();
+           context.moveTo(0, i);
+           context.lineTo(context.canvas.width, i);
+           context.stroke();
+         }
+
+         context.restore();
+      }
+
+      
+
+      
+
+      // Initialization...............................................
+
+      drawGrid('lightgray', 10, 10);
+      ball.left=320;
+      ball.top=160;
+      ball.paint(context);
+    </script>
+  </body>
+</html>
