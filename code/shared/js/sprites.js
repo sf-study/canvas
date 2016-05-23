@@ -94,6 +94,13 @@ SpriteSheetPainter.prototype = {
 // to a sprite over a period of time. Animators can be started with 
 // start(sprite, durationInMillis, restoreSprite)
 
+// SpriteAnimator对象包含一个精灵绘制器的数组，
+// 数组中的每个元素都是一个实现了paint(sprite,context)方法的对象，
+// 这些对象都可以绘制精灵，
+// 每个精灵对象都有一个专门负责其绘制的精灵绘制器
+// 
+// 精灵动画制作器对象
+
 var SpriteAnimator = function (painters, elapsedCallback) {
    this.painters = painters;
    if (elapsedCallback) {
@@ -154,8 +161,8 @@ var Sprite = function (name, painter, behaviors) {
    if (name !== undefined)      this.name = name;
    if (painter !== undefined)   this.painter = painter;
    if (behaviors !== undefined) this.behaviors = behaviors;
-
-   return this;
+ 
+   return this;//Sprite {name: "ball", painter: Object}
 };
 
 Sprite.prototype = {
