@@ -99,7 +99,13 @@ SpriteSheetPainter.prototype = {
 // 这些对象都可以绘制精灵，
 // 每个精灵对象都有一个专门负责其绘制的精灵绘制器
 // 
-// 精灵动画制作器对象
+// 精灵动画制作器对象每隔一段时间，
+// 就会从数组中按次序选出一个绘制器对象，
+// 同时还可以根据需要传入一个回调函数
+// 用于在动画播放完毕时执行
+// 
+// 调用SpriteAnimator.start，开始播放动画，
+// 该方法需要知道动画播放的精灵对象以及动画持续的毫秒数
 
 var SpriteAnimator = function (painters, elapsedCallback) {
    this.painters = painters;
@@ -127,25 +133,40 @@ SpriteAnimator.prototype = {
    },
    
    start: function (sprite, duration) {
+    // endTime，将动画持续时间与当前事件相加，计算出动画停止时间
+    // period，动画的周期，分配给每张动画图像的显示时间
       var endTime = +new Date() + duration,
           period = duration / (this.painters.length),
           interval = undefined,
           animator = this, // for setInterval() function
-          originalPainter = sprite.painter;
+          originalPainter = sprite.painter,
+          lastUpdate=0;
 
       this.index = 0;
       sprite.animating = true;
       sprite.painter = this.painters[this.index];
 
-      interval = setInterval(function() {
-         if (+new Date() < endTime) {
-            sprite.painter = animator.painters[++animator.index];
-         }
-         else {
-            animator.end(sprite, originalPainter);
-            clearInterval(interval);
-         }
-      }, period); 
+      requestNextAnimationFrame(function spriteAnimatorAnimate(time){
+        if(time<endTime){
+          if((time-lastUpdate)>period){
+            sprite.painter=animator.painters[++animator.index];
+            lastUpdate=time;
+          }
+          requestNextAnimationFrame(spriteAnimatorAnimate);
+        }else{
+          animator.end(Sprite.originalPainter);
+        }
+      });
+
+      // interval = setInterval(function() {
+      //    if (+new Date() < endTime) {
+      //       sprite.painter = animator.painters[++animator.index];
+      //    }
+      //    else {
+      //       animator.end(sprite, originalPainter);
+      //       clearInterval(interval);
+      //    }
+      // }, period); 
    },
 };
 
