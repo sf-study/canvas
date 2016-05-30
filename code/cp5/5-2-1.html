@@ -21,64 +21,19 @@
 		<canvas id="canvas" width="600" height="600">
 			你的浏览器不支持该元素
 		</canvas>
+		<script src = '../shared/js/requestNextAnimationFrame.js'></script>
 		<script type="text/javascript">
-			window.requestNextAnimationFrame=(function(){
-				var originalWebkitMethod,
-				wrapper=undefined,
-				callback=undefined,
-				geckoVersion=0,
-				userAgent=navigator.userAgent,
-				index=0,
-				self=this;
-				
-				if(window.webkitRequestAnimationFrame){
-					wrapper=function(time){
-						if(time===undefined){
-							tine=+new Date();
-						}
-						self.callback(time);
-					};
-					
-					originalWebkitMethod=window.webkitRequestAnimationFrame;
-					
-					window.webkitRequestAnimationFrame=function(callback,element){
-						originalWebkitMethod(wrapper,element);
-					};
-				}
-				
-				if(window.mozRequestAnimationFrame){
-					index=userAgent.indexOf('rv:');
-					
-					if(userAgent.indexOf('Gecko')!=-1){
-						geckoVersion=unserAgent.substr(index+3,3);
-						if(geckoVersion==='2.0'){
-							window.mozRequestAnimationFrame=undefined;
-						}
-					}
-				}
-				
-				return window.requestAnimationFrame||
-				window.webkitRequestAnimationFrame||
-				window.mozRequestAnimationFrame||
-				window.msRequestAnimationFrame||
-				function(callback,element){
-					var self=this,start,finash;
-					
-					window.setTimeout(function(){
-						start=+new Date();
-						callback(start);
-						finish=+new Date();
-						self.timeout=1000/60;
-					},self.timeout);
-				}
-			})();
 			console.log(window.requestNextAnimationFrame);
 
 			var canvas = document.getElementById('canvas'),
 			    context = canvas.getContext('2d');
 
 			var lastTime=0,x=10;
+			// 计算帧速率
 			function calculateFps(){
+				// 每次执行动画计算一次帧速率
+				// now当前执行的时间
+				// 计算帧速率
 				var now=(+new Date),fps=1000/(now-lastTime);
 				lastTime=now;
 				return fps;

@@ -47,7 +47,7 @@
       fps = 0,
 
       skyOffset = 0,
-      SKY_VELOCITY = 30; // 30 pixels/second
+      SKY_VELOCITY = 30; // 30 pixels/second，每秒移动30像素
 
       // Functions.....................................................
 
@@ -56,17 +56,21 @@
       }
 
       function draw() {
-         // context.save();
-
+         context.save();
+         // 计算每帧要移动的像素数
+         // 背景图片的偏移量小于canvas的宽度，偏移量增加
+         // 增加的偏移量是每秒移动的像素数除以帧速率，也就是一帧要移动的像素数
          skyOffset = skyOffset < canvas.width ?
                      skyOffset + SKY_VELOCITY/fps : 0;
-
+          // 保存绘图表面
          context.save();
+         // 移动坐标
          context.translate(-skyOffset, 0);
-
+         // 绘制背景图片
          context.drawImage(sky, 0, 0);
+         // 在canvas.width开始的地方在绘制一次背景图片
          context.drawImage(sky, sky.width-2, 0);
-
+         // 恢复绘图表面
          context.restore();
       }
 

@@ -88,6 +88,12 @@ window.requestNextAnimationFrame =
          }
       }
       
+      // 如果可以使用W3C标准的方法或是浏览器专属的实现方式
+      // 就将标准的或专属的实现函数赋值给window.requestNextAnimationFrame
+      // 如果当前浏览器即不支持标准方法又没有提供专属方法
+      // 那么就利用window.setTimeout（）方法实现一段代码，
+      // 让浏览器能够以大约每秒60帧的速度来播放动画
+      // 然后在将其赋值给code.requestNextAnimationFrame（）使用
       return window.requestAnimationFrame   ||
          window.webkitRequestAnimationFrame ||
          window.mozRequestAnimationFrame    ||
@@ -99,10 +105,16 @@ window.requestNextAnimationFrame =
                 finish;
 
             window.setTimeout( function () {
+              // 动画开始执行的时间
                start = +new Date();
+               // 执行动画
                callback(start);
+               // 动画执行完成的时间
                finish = +new Date();
-
+               // 1000 / 60，每帧动画应该播放的时间
+               // finish - start实际执行一次动画所用的时间差
+               // 每帧动画应该执行的时间减去动画实际播放的时间
+               // 这个时间差就是下次要执行动画的时间
                self.timeout = 1000 / 60 - (finish - start);
 
             }, self.timeout);

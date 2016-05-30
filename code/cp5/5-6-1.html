@@ -75,8 +75,45 @@
 			   ],
 			   numDiscs = discs.length,
 			   animateButton = document.getElementById('animateButton');
+
+			   var fps=0,lastTime;
 			
 			// Functions.....................................................
+
+			function calculateFps(){
+				now=(+new Date),fps=1000/(now-lastTime);
+				lastTime=now;
+				return fps;
+			}
+
+			function updateTimeBased(time) {
+			   var i = numDiscs,
+			       disc = null;
+
+			   if (fps == 0)
+			      return;
+			   
+			   while(i--) {
+			      disc = discs[i];
+			      deltaX = disc.velocityX / fps;
+			      deltaY = disc.velocityY / fps;
+
+			      if (disc.x + deltaX + disc.radius > context.canvas.width ||
+			         disc.x + deltaX - disc.radius < 0) {
+			         disc.velocityX = -disc.velocityX;
+			         deltaX = -deltaX;
+			      }
+
+			      if (disc.y + deltaY + disc.radius > context.canvas.height ||
+			         disc.y + deltaY - disc.radius < 0) {
+			         disc.velocityY= -disc.velocityY;
+			         deltaX = -deltaX;
+			      }
+
+			      disc.x = disc.x + deltaX;
+			      disc.y = disc.y + deltaY;
+			   }
+			}
 			
 			function drawBackground() {
 			   var STEP_Y = 12,
@@ -133,17 +170,17 @@
 			   for(var i=0; i < numDiscs; ++i) {
 			      disc = discs[i];
 			
-			      gradient = context.createRadialGradient(disc.x, disc.y, 0,
-			                         disc.x, disc.y, disc.radius);
+			      // gradient = context.createRadialGradient(disc.x, disc.y, 0,
+			                         // disc.x, disc.y, disc.radius);
 			
-			      gradient.addColorStop(0.3, disc.innerColor);
-			      gradient.addColorStop(0.5, disc.middleColor);
-			      gradient.addColorStop(1.0, disc.outerColor);
+			      // gradient.addColorStop(0.3, disc.innerColor);
+			      // gradient.addColorStop(0.5, disc.middleColor);
+			      // gradient.addColorStop(1.0, disc.outerColor);
 			
 			      context.save();
 			      context.beginPath();
 				  context.arc(disc.x, disc.y, disc.radius, 0, Math.PI*2, false);
-			      context.fillStyle = gradient;
+			      // context.fillStyle = gradient;
 			      context.strokeStyle = disc.strokeStyle;
 			      context.fill();
 			      context.stroke();
@@ -155,12 +192,14 @@
 			
 			function animate(time) {
 			   if (!paused) {
+			   	fps=calculateFps();
 			   	// 在绘制前先把背景擦掉。重绘
 			      context.clearRect(0,0,canvas.width,canvas.height);
 			      drawBackground();
 			      // 绘制下一帧
-			      update();
+			      updateTimeBased(time);
 			      draw();
+			      lastTime=time;
 			
 			      window.requestNextAnimationFrame(animate);
 			   }
