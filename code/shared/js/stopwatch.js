@@ -38,6 +38,7 @@
 //
 // Stopwatches are used primarily for timing animations.
 
+// 创建对象
 Stopwatch = function ()  {
 };
 
@@ -45,21 +46,30 @@ Stopwatch = function ()  {
 // stopped.
 
 Stopwatch.prototype = {
+   // 开始时间，是否动画，
    startTime: 0,
    running: false,
    elapsed: undefined,
 
+   // 开始动画，this.running = true
+   // 开始动画时获取时间
+   // elapsedTime，已经过去的时间，undefined
    start: function () {
       this.startTime = +new Date();
       this.elapsedTime = undefined;
       this.running = true;
    },
 
+   // 设置this.running = false，停止动画
+   // 当前过去的时间elapsed，为当前时间减去开始时间
    stop: function () {
       this.elapsed = (+new Date()) - this.startTime;
       this.running = false;
    },
 
+   // 获取过去的时间
+   // 如果动画还在执行，当前时间减去开始时间
+   // 如果动画已经结束，elapsed
    getElapsedTime: function () {
       if (this.running) {
          return (+new Date()) - this.startTime;
@@ -69,10 +79,12 @@ Stopwatch.prototype = {
       }
    },
 
+   // 该函数用于获取动画是否在执行
    isRunning: function() {
       return this.running;
    },
 
+   // 重置已经过去的时间
    reset: function() {
      this.elapsed = 0;
    }

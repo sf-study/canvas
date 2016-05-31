@@ -41,46 +41,61 @@
 // completed for the animation. That warping lets you do easily incorporate
 // non-linear motion, such as: ease-in, ease-out, elastic, etc.
 
+// 接受两个参数，
+// duration，动画的持续时间
+// timeWarp
 AnimationTimer = function (duration, timeWarp)  {
    this.timeWarp = timeWarp;
 
    if (duration !== undefined) this.duration = duration;
    else                        this.duration = 1000;
 
+   // 创建一个对象
    this.stopwatch = new Stopwatch();
 };
 
 AnimationTimer.prototype = {
+   // 开始
    start: function () {
       this.stopwatch.start();
    },
 
+   // 结束
    stop: function () {
       this.stopwatch.stop();
    },
 
+   // 获取经过的时间
    getRealElapsedTime: function () {
       return this.stopwatch.getElapsedTime();
    },
    
+   // 
    getElapsedTime: function () {
+      // elapsedTime，获取经过的时间
+      // percentComplete，已经完成的百分比
       var elapsedTime = this.stopwatch.getElapsedTime(),
           percentComplete = elapsedTime / this.duration;
 
+      // 如果动画正在播放，return undefined
       if (!this.stopwatch.running)    return undefined;
+      // 
       if (this.timeWarp == undefined) return elapsedTime;
 
       return elapsedTime * (this.timeWarp(percentComplete) / percentComplete);
    },
 
+   // 该函数用于获取动画是否在执行
    isRunning: function() {
       return this.stopwatch.running;
    },
    
+   // 动画已经播放的秒数是否大于动画持续的时间，判断动画是否结束
    isOver: function () {
       return this.stopwatch.getElapsedTime() > this.duration;
    },
 
+   // 重置已经过去的时间
    reset: function() {
       this.stopwatch.reset();
    }

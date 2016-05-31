@@ -34,6 +34,7 @@
 
       // Painter...................................................
 
+      // 首先创建用于绘制精灵的对象
       ballPainter = {
         paint: function (sprite, context) { 
            var x = sprite.left + sprite.width/2,
@@ -65,10 +66,12 @@
 
       // Sprite....................................................
 
+      // 创建精灵对象，并传入绘制器
       ball = new Sprite('ball', ballPainter);
 
       // Functions.....................................................
 
+      // 绘制网格
       function drawGrid(color, stepx, stepy) {
          context.save()
 
@@ -100,6 +103,9 @@
       }
 
       function drawHand(loc, isHour) {
+        // angle指针偏移的弧度
+        // 指针的半径长度
+        // lineEnd，指针终点的位置
          var angle = (Math.PI*2) * (loc/60) - Math.PI/2,
              handRadius = isHour ? CLOCK_RADIUS - HOUR_HAND_TRUNCATION 
                                  : CLOCK_RADIUS,
@@ -125,8 +131,11 @@
          ball.paint(context);
       }
 
+      // 绘制钟表
       function drawClock() {
+        // 绘制时钟表面
          drawClockFace();
+         // 绘制指针
          drawHands();
       }
 
@@ -134,8 +143,10 @@
          var date = new Date(),
              hour = date.getHours();
 
+        // 设置圆形的宽高
          ball.width = 20;
          ball.height = 20;
+         // 绘制指针
          drawHand(date.getSeconds(), false);
 
          hour = hour > 12 ? hour - 12 : hour;
@@ -154,6 +165,7 @@
          ballPainter.paint(ball, context);
       }
 
+      // 绘制时钟表面圆圈
       function drawClockFace() {
          context.beginPath();
          context.arc(canvas.width/2, canvas.height/2,
@@ -168,9 +180,11 @@
       // Animation.....................................................
 
       function animate() {
+        // 清除背景
          context.clearRect(0,0,canvas.width,canvas.height);
-
+         // 重绘背景
          drawGrid('lightgray', 10, 10);
+         // 绘制钟表
          drawClock();
 
          window.requestNextAnimationFrame(animate);
@@ -191,6 +205,7 @@
 
       window.requestNextAnimationFrame(animate);
 
+      // 绘制网格
       drawGrid('lightgray', 10, 10);
 
     </script>

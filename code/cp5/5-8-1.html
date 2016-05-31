@@ -70,7 +70,10 @@
       function draw() {
          context.save();
 
-         // 获取各个物体在一帧内移动的像素
+         // 获取各个物体的偏移量
+         // SKY_VELOCITY/fps为天空每秒钟应该移动的像素
+         // skyOffset，天空下一秒的偏移量
+         // 如果偏移量不小于canvas的宽度，说明已经移动到最左边，然后从最右边开始在向左移动
          skyOffset = skyOffset < canvas.width ?
                      skyOffset + SKY_VELOCITY/fps : 0;
 
@@ -137,12 +140,14 @@
          if (now === undefined) {
             now = +new Date;
          }
-
+         // 计算帧速率
          fps = calculateFps(now);
 
          if (!paused) {
+          // 擦除背景
             erase();
-           draw();
+            // 绘制
+            draw();
          }
 
          requestNextAnimationFrame(animate);
@@ -161,7 +166,7 @@
       };
 
       // Initialization................................................
-
+      // 初始设置
       context.font = '48px Helvetica';
 
       tree.src = '../shared/img/smalltree.png';

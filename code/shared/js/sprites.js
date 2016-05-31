@@ -178,6 +178,14 @@ SpriteAnimator.prototype = {
 // A sprite's painter paints the sprite: paint(sprite, context)
 // A sprite's behavior executes: execute(sprite, context, time)
 
+// 精灵
+// painter属性指向Painter对象的引用
+// behaviors属性指向一个对象数组
+// 精灵对象有两个方法：paint，update
+// update方法用于执行每个精灵的行为，执行的顺序就是这些行为被加入精灵之中的顺序
+// paint方法则将精灵的绘制器代理给绘制器来做，visible属性值为true时，该方法才会生效
+
+// Sprite构造器接收三个参数：精灵的名称，绘制器，行为数组
 var Sprite = function (name, painter, behaviors) {
    if (name !== undefined)      this.name = name;
    if (painter !== undefined)   this.painter = painter;
@@ -199,7 +207,11 @@ Sprite.prototype = {
    behaviors: [], // objects with execute(sprite, context, time)
 
 	paint: function (context) {
+    // paint方法接收一个参数，绘图环境上下文
+    // 如果有绘制器，并且可见
      if (this.painter !== undefined && this.visible) {
+      // 执行传入精灵对象的绘制器函数，函数又一个paint()方法
+      // this是sprite，context绘图环境
         this.painter.paint(this, context);
      }
 	},
