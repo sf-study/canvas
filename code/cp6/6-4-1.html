@@ -1,119 +1,166 @@
 <!DOCTYPE html>
-<html>
+<!--
+- Copyright (C) 2012 David Geary. This code is from the book
+- Core HTML5 Canvas, published by Prentice-Hall in 2012.
+-
+- License:
+-
+- Permission is hereby granted, free of charge, to any person 
+- obtaining a copy of this software and associated documentation files
+- (the "Software"), to deal in the Software without restriction,
+- including without limitation the rights to use, copy, modify, merge,
+- publish, distribute, sublicense, and/or sell copies of the Software,
+- and to permit persons to whom the Software is furnished to do so,
+- subject to the following conditions:
+-
+- The above copyright notice and this permission notice shall be
+- included in all copies or substantial portions of the Software.
+-
+- The Software may not be used to create training material of any sort,
+- including courses, books, instructional videos, presentations, etc.
+- without the express written consent of David Geary.
+-
+- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+- EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+- OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+- NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+- HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+- WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+- FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+- OTHER DEALINGS IN THE SOFTWARE.
+-->
+
    <head>
-     <title>Animating with sprite sheets</title>
+     <title>Sprite Animators</title>
 
       <style> 
          body {
-            background: #dddddd;
+            background: #eeeeee;
          }
 
          #canvas {
             position: absolute;
             left: 0px;
             top: 20px;
-            margin: 20px;
-            background: #ffffff;
-            border: thin inset rgba(100,150,230,0.5);
+            margin-left: 10px;
+            background: lightskyblue;
+            border: thin solid rbga(0,0,0,1.0);
+            -webkit-box-shadow: rgba(0,0,0,0.5) 4px 4px 6px;
+            -moz-box-shadow: rgba(0,0,0,0.5) 4px 4px 6px;
+            box-shadow: rgba(0,0,0,0.5) 4px 4px 6px;
          }
 
-         #animateButton {
-            margin-top: 10px;
-            margin-left: 15px;
-            margin-bottom: 10px;
+         #explosionButton {
+            position: absolute;
+            left: 50px;
+            top: 50px;
+            padding-left: 10px;
          }
       </style>
    </head>
 
   <body>
-    <input id='Button' type='button' value='start'/>
+      <canvas id='canvas' width='600' height='600'>
+        Canvas not supported
+      </canvas>
 
-    <canvas id='canvas' width='600' height='800'>
-      Canvas not supported
-    </canvas>
-
-    <script src='../shared/js/requestNextAnimationFrame.js'></script>
-    <script src='../shared/js/sprites.js'></script>
-    <script>
-      var canvas = document.getElementById('canvas'),
-      context = canvas.getContext('2d'),
-      btn=document.getElementById('Button'),
+      <input id='explosionButton' type='button' value='kaboom'/>
       
-      BOMB_LEFT=100,
-      BOMB_TOP=80,
-      BOMB_WIDTH=180,
-      BOMB_HEIGHT=130,
+      <script src='../shared/js/stopwatch.js'></script>
+      <script src='../shared/js/animationTimer.js'></script>
+      <script src='../shared/js/requestNextAnimationFrame.js'></script>
+      <script src='../shared/js/sprites.js'></script>
+      <script>
+        var canvas = document.getElementById('canvas'),
+        context = canvas.getContext('2d'),
+        explosionButton = document.getElementById('explosionButton'),
 
-      NUM_EXPLOSION_PAINTERS=9,
-      NUM_FUSE_PAINTERS=9,
+        BOMB_LEFT = 100,
+        BOMB_TOP = 80,
+        BOMB_WIDTH = 180,
+        BOMB_HEIGHT = 130,
 
-      bombPainter=new ImagePainter('../shared/img/bomb.png'),
-      bombNoFusePainter=new ImagePainter('bomb-no-fuse.png'),
-      fuseBurningPainters=[],
-      explosionPainters=[];
+        NUM_EXPLOSION_PAINTERS = 9,
+        NUM_FUSE_PAINTERS = 9,
 
-      // 两个精灵动画制作器：fuseBurningAnimator，explosionAnimator
-      // 起初都有一个用于存放绘制器对象的空数组
-      // 稍后应用程序会分别用适当的图像绘制器对象来初始化这两个数组
-      fuseBurningAnimator=new SpriteAnimator(fuseBurningPainters,function(){
-        bomb.painter=bombNoFusePainter;
-      });
+        // Painters..................................................
+        // 图像绘制器
+        bombPainter = new ImagePainter('../shared/img/bomb.png'),
+        bombNoFusePainter = new ImagePainter('bomb-no-fuse.png'),
+        // 动画绘制器
+        fuseBurningPainters = [],
+        explosionPainters = [],
 
-      explosionAnimator=new SpriteAnimator(explosionPainters,function(){
-        bomb.painter=bombNoFusePainter;
-      });
-      bomb=new Sprite('bomb',bombPainter);
-      
-      function resetBombNoFuse(){
-        bomb.painter=bombNoFusePainter;
-      }
+        // Animators.................................................
+        // 导线点燃的动画
+        fuseBurningAnimator = new SpriteAnimator(
+                  fuseBurningPainters,
+                  function () { bomb.painter = bombNoFusePainter; });
 
-      btn.onclick=function(e){
-        // 如果已经在播放动画，直接返回
-        if(bomb.animating){
-          return;
+        explosionAnimator = new SpriteAnimator(
+                  explosionPainters,
+                  function () { bomb.painter = bombNoFusePainter; });
+
+        // Bomb......................................................
+
+        bomb = new Sprite('bomb', bombPainter),
+
+        // Event Handlers................................................
+
+        explosionButton.onclick = function (e) {
+          // 如果已经在播放动画，直接返回
+           if (bomb.animating) // not now...
+              return;
+
+           // burn fuse for 2 seconds
+           // 开始播放动画，动画持续时间2000毫秒
+           // 该精灵动画制作器会一次播放导线燃烧时的图片，引线燃烧完时，缓存没有引线的图片
+           fuseBurningAnimator.start(bomb, 2000); 
+
+           // wait for 3 seconds, then explode for 1 second
+           // 3000毫秒之后，播放炸弹爆炸的图像
+           setTimeout(function () {
+              explosionAnimator.start(bomb, 1000); 
+
+              // wait for 2 seconds, then reset to the
+              // original bomb image
+
+              setTimeout(function () {
+                // 爆炸完后，绘制没有点燃引线的图像
+                 bomb.painter = bombPainter;
+              }, 2000);
+
+           }, 3000);
+
+        };
+
+        // Animation.....................................................
+
+        function animate(now) {
+           context.clearRect(0,0,canvas.width,canvas.height);
+           bomb.paint(context);
+           window.requestNextAnimationFrame(animate);
         }
 
-        // 启动fuseBurningAnimator，播放时为两秒的动画
-        // 当动画完成后，fuseBurningAnimator对象的回调函数会将炸弹精灵的绘制器对象设置为bombNoFusePainter
-        // bombNoFusePainter对象会把另外一张图片绘制出来
+        // Initialization................................................
 
-        fuseBurningAnimator.start(bomb,2000);
+        bomb.left = BOMB_LEFT;
+        bomb.top = BOMB_TOP;
+        bomb.width = BOMB_WIDTH;
+        bomb.height = BOMB_HEIGHT;
 
-        setTimeout(function(){
-            // 动画延期两秒，播放完毕，explosionAnimator对象也会把炸弹精灵的绘制器对象设置为bombNoFusePainter
-            explosionAnimator.start(bomb,1000);
+        for (var i=0; i < NUM_FUSE_PAINTERS; ++i) {
+          // fuseBurningPainters存储了导线燃烧时的每一个图片
+           fuseBurningPainters.push(new ImagePainter('fuse-0' + i + '.png'));
+        }
 
-            // 在炸弹爆炸完一秒后，应用程序将炸弹精灵的绘制器对象设置为bombPainter
-            setTimeout(function(){
-              bomb.painter=bombPainter;
-            },2000);
-        },3000);
-      }
+        for (var i=0; i < NUM_EXPLOSION_PAINTERS; ++i) {
+          // explosionPainters存储了爆炸时的每一个图片
+           explosionPainters.push(new ImagePainter('explosion-0' + i + '.png'));
+        }
 
-      function animate(now){
-        context.clearRect(0,0,canvas.width,canvas.height);
-        bomb.paint(context);
         window.requestNextAnimationFrame(animate);
-      }
 
-      bomb.left=BOMB_LEFT;
-      bomb.top=BOMB_TOP;
-
-      bomb.width=BOMB_WIDTH;
-      bomb.height=BOMB_HEIGHT;
-
-      for(var i=0;i<NUM_FUSE_PAINTERS;i++){
-        fuseBurningPainters.push(
-          new ImagePainter('fuse-0'+i+'.png'));
-      }
-
-      for (var i=0;i<NUM_EXPLOSION_PAINTERS;i++){
-        explosionPainters.push(new ImagePainter('explosion-0'+i+'.png'));
-      }
-
-      window.requestNextAnimationFrame(animate);
-      
-    </script>
+      </script>
   </body>
 </html>

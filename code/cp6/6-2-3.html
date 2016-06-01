@@ -79,27 +79,39 @@
       function startAnimation() {
          animateButton.value = 'Pause';
          paused = false;
+         // 获取当前动画的时间
          lastAdvance = +new Date();
+         // 动画
          window.requestNextAnimationFrame(animate);
       }
 
       // Event handlers................................................
 
       animateButton.onclick = function (e) {
-         if (animateButton.value === 'Animate') startAnimation();
-         else                                   pauseAnimation();
+
+         if (animateButton.value === 'Animate') 
+          // 开始动画
+          startAnimation();
+         else           
+          //结束动画 
+          pauseAnimation();
       };
 
       // Animation.....................................................
 
       function animate(time) {
          if ( ! paused) {
+            // 清除所有
             context.clearRect(0,0,canvas.width,canvas.height);
+            // 重绘背景
             drawBackground();
+            // 重绘精灵表
             context.drawImage(spritesheet, 0, 0);
+            // 执行精灵表的绘制器
             sprite.paint(context); 
 
             if (-(time - lastAdvance) > PAGEFLIP_INTERVAL) {
+              // 判断当前这一帧是否已经持续了100毫秒，如果是，精灵表的数组索引加1
                sprite.painter.advance();
                lastAdvance = time;
             }
@@ -120,6 +132,7 @@
       context.strokeStyle = 'lightgray';
       context.lineWidth = 0.5;
 
+      // 开始的时候，先绘制背景
       drawBackground();
     </script>
   </body>

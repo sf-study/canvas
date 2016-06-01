@@ -117,17 +117,20 @@
                    Math.sin(angle)*(handRadius - ball.width/2)
              };
 
+          // 绘制指针的线
          context.beginPath();
          context.moveTo(canvas.width/2, canvas.height/2);
          context.lineTo(lineEnd.x, lineEnd.y);
          context.stroke();
 
+         // 指针终点的圆圈的左，右间距
          ball.left = canvas.width/2  +
                      Math.cos(angle)*handRadius - ball.width/2; 
 
          ball.top  = canvas.height/2 +
                      Math.sin(angle)*handRadius - ball.height/2;
 
+          // 使用绘制器绘制终点的圆圈
          ball.paint(context);
       }
 
@@ -149,11 +152,13 @@
          // 绘制指针
          drawHand(date.getSeconds(), false);
 
+         // 绘制时针
          hour = hour > 12 ? hour - 12 : hour;
          ball.width = 35;
          ball.height = 35;
          drawHand(date.getMinutes(), false);
 
+         // 绘制分针
          ball.width = 50;
          ball.height = 50;
          drawHand(hour*5 + (date.getMinutes()/60)*5);

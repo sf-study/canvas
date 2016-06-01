@@ -29,6 +29,8 @@
       <script src='../shared/js/requestNextAnimationFrame.js'></script>
       <script src='../shared/js/sprites.js'></script>
       <script>
+      // new ImagePainter('../shared/img/bomb.png')：创建图像绘制器
+      // bomb，精灵
         var canvas = document.getElementById('canvas'),
         context = canvas.getContext('2d'),
         bomb = new Sprite('bomb', new ImagePainter('../shared/img/bomb.png')),
@@ -43,7 +45,9 @@
         }
 
         function animate(now) {
+          // 清除背景
            context.clearRect(0,0,canvas.width,canvas.height);
+           绘制图像
            paint();
            window.requestNextAnimationFrame(animate);
         }

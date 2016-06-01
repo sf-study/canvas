@@ -34,7 +34,10 @@
 // Painters paint sprites with a paint(sprite, context) method. ImagePainters
 // paint an image for their sprite.
 
+// 图像绘制器
+// 在创建图像绘制器时需要将指向图像URL的引用传给ImagePainter构造器，只有当图像完全载入后，图像绘制器的paint()方法才会将其绘制出来
 var ImagePainter = function (imageUrl) {
+  // 创建一个图像对象，并指定图像的地址
    this.image = new Image;
    this.image.src = imageUrl;
 };
@@ -42,19 +45,23 @@ var ImagePainter = function (imageUrl) {
 ImagePainter.prototype = {
    image: undefined,
 
+   // paint()方法，接受两个参数
    paint: function (sprite, context) {
+    // 如果image图像存在并加载完毕
       if (this.image !== undefined) {
          if ( ! this.image.complete) {
+          // 在图像加载过程中，设置图像的宽高
             this.image.onload = function (e) {
                sprite.width = this.width;
                sprite.height = this.height;
-               
+               // 绘制图像
                context.drawImage(this,  // this is image
                   sprite.left, sprite.top,
                   sprite.width, sprite.height);
             };
          }
          else {
+          // 绘制图像
            context.drawImage(this.image, sprite.left, sprite.top,
                              sprite.width, sprite.height); 
          }
@@ -62,16 +69,22 @@ ImagePainter.prototype = {
    }
 };
 
+// 精灵表绘制器
+// 精灵表绘制器接受一个数组，该数组的每一项都是精灵表中每一个单元格的位置信息，和精灵尺寸
 SpriteSheetPainter = function (cells) {
    this.cells = cells;
 };
 
 SpriteSheetPainter.prototype = {
+  // 一开始时精灵表索引是0
    cells: [],
    cellIndex: 0,
 
    advance: function () {
+    // advance函数，将索引值加1
       if (this.cellIndex == this.cells.length-1) {
+        // 如果当前索引值==cells.length-1，也就是已经到了最后一个精灵
+        // 从0开始，cellIndex = 0
          this.cellIndex = 0;
       }
       else {
@@ -80,7 +93,10 @@ SpriteSheetPainter.prototype = {
    },
    
    paint: function (sprite, context) {
+    // paint函数用于绘制精灵
+    // cell取得当前索引所对应的精灵的位置信息和尺寸
       var cell = this.cells[this.cellIndex];
+      // 绘制精灵
       context.drawImage(spritesheet, cell.left, cell.top,
                                      cell.width, cell.height,
                                      sprite.left, sprite.top,
@@ -94,7 +110,7 @@ SpriteSheetPainter.prototype = {
 // to a sprite over a period of time. Animators can be started with 
 // start(sprite, durationInMillis, restoreSprite)
 
-// SpriteAnimator对象包含一个精灵绘制器的数组，
+// SpriteAnimator，精灵动画制作器，包含一个精灵绘制器的数组，
 // 数组中的每个元素都是一个实现了paint(sprite,context)方法的对象，
 // 这些对象都可以绘制精灵，
 // 每个精灵对象都有一个专门负责其绘制的精灵绘制器
@@ -108,6 +124,7 @@ SpriteSheetPainter.prototype = {
 // 该方法需要知道动画播放的精灵对象以及动画持续的毫秒数
 
 var SpriteAnimator = function (painters, elapsedCallback) {
+  // 接收两个参数：绘制器数组，回调函数，回调函数是在动画执行完毕时调用
    this.painters = painters;
    if (elapsedCallback) {
       this.elapsedCallback = elapsedCallback;
@@ -115,6 +132,7 @@ var SpriteAnimator = function (painters, elapsedCallback) {
 };
 
 SpriteAnimator.prototype = {
+  // 设置初始值，动画持续时间为1000毫秒，开始时间0，索引0
    painters: [],
    duration: 1000,
    startTime: 0,
@@ -148,12 +166,15 @@ SpriteAnimator.prototype = {
 
       requestNextAnimationFrame(function spriteAnimatorAnimate(time){
         if(time<endTime){
+          // 如果当前时间小于动画结束的时间，还没到结束时间
           if((time-lastUpdate)>period){
+            // 如果动画显示的时间大于应该显示的时间，绘制下一个图像
             sprite.painter=animator.painters[++animator.index];
             lastUpdate=time;
           }
           requestNextAnimationFrame(spriteAnimatorAnimate);
         }else{
+          // 绘制第一张图像
           animator.end(Sprite.originalPainter);
         }
       });

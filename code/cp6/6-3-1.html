@@ -57,8 +57,11 @@
          PAGEFLIP_INTERVAL: 100,
 
          execute: function (sprite, context, time) {
+          // 当前动画的时间减去上一次动画的时间，如果大于设置的每一帧的显示周期
             if (time - this.lastAdvance > this.PAGEFLIP_INTERVAL) {
+              // 精灵表的数组索引加1
                sprite.painter.advance();
+               // 当前时间赋值
                this.lastAdvance = time;
             }
          }
@@ -68,11 +71,14 @@
          lastMove: 0,
          
          execute: function (sprite, context, time) {
+          // 上一次的动画的时间不为0
            if (this.lastMove !== 0) {
+            // 基于时间的运动，每帧需要走过的像素
              sprite.left -= sprite.velocityX *
                             ((time - this.lastMove) / 1000); 
 
              if (sprite.left < 0) {
+              // 移动到最左边，从最右边再重新开始
                 sprite.left = canvas.width;
              }
            }
@@ -106,12 +112,18 @@
       // Animation.....................................................
 
       function animate(time) {
+        // 清除所有
          context.clearRect(0,0,canvas.width,canvas.height);
+         // 重绘背景
          drawBackground();
 
+         // 重绘精灵表
          context.drawImage(spritesheet, 0, 0);
 
+         // 创建精灵对象时，传入行为数组， sprite.update()方法会依次执行数组里面的每一个行为函数
+         // 此处两个行为函数，一个将精灵表的数组的索引加1，交给精灵绘制器绘制，另一个用于将精灵的位置从右往左移动
          sprite.update(context, time);
+         // 精灵绘制器，开始绘制当前应该显示的帧图像
          sprite.paint(context); 
 
          window.requestNextAnimationFrame(animate);
