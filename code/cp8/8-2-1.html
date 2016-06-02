@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Bouncing off the walls</title>
+
+    <style>
+      #canvas {
+         background: lightskyblue;
+         cursor: pointer;
+         -webkit-box-shadow: 4px 4px 8px rgba(0,0,0,0.5);
+         -moz-box-shadow: 4px 4px 8px rgba(0,0,0,0.5);
+         box-shadow: 4px 4px 8px rgba(0,0,0,0.5);
+      }
+    </style>
+  </head>
+
+   <body>
+      <canvas id='canvas' width='500' height='300'>
+         Canvas not supported
+      </canvas>
+
+    <script src = '../shared/js/sprites.js'></script>
+    <script src = '../shared/js/requestNextAnimationFrame.js'></script>
+    <script>
+      var canvas = document.getElementById('canvas'),
+      context = canvas.getContext('2d'),
+      ball = new Sprite('ball',
+        {
+           paint: function (sprite, context) {
+              context.save();
+              context.strokeStyle = 'blue';
+              context.fillStyle = 'yellow';
+              context.beginPath();
+              context.arc(sprite.left + sprite.width/2,
+                          sprite.top + sprite.height/2,
+                          10, 0, Math.PI*2, false);
+              context.stroke();
+              context.fill();
+              context.restore();
+            }
+         }),
+      ballMoving = false,
+      lastTime = undefined,
+      velocityX = 350,
+      velocityY = 190,
+      showInstructions = true;
+
+      // Functions.....................................................
+
+      function windowToCanvas(e) {
+         var x = e.x || e.clientX,
+             y = e.y || e.clientY,
+             bbox = canvas.getBoundingClientRect();
+
+         return { x: x - bbox.left * (canvas.width  / bbox.width),
+                  y: y - bbox.top  * (canvas.height / bbox.height)
+                };
+      };
+
+      function getBoundingBox(ball) {
+         return { left: ball.left,
+                  top: ball.top,
+                  width: ball.width,
+                  height: ball.height
+                };
+      }
+                            
+      function handleEdgeCollisions() {
+        // 获取小球距离边界的值，
+         var bbox = getBoundingBox(ball),
+             right = bbox.left + bbox.width,
+             bottom = bbox.top + bbox.height;
+          // 如果小球碰到了canvas的左边，或者右边
+         if (right > canvas.width || bbox.left < 0) {
+          // 速度相反
+            velocityX = -velocityX;
+            // 如果碰到了右边
+            if (right > canvas.width) {
+               ball.left -= right-canvas.width;
+            }
+            // 如果碰到了左边
+            if (bbox.left < 0) {
+               ball.left -= bbox.left;
+            }
+         }
+         if (bottom > canvas.height || bbox.top < 0) {
+            velocityY = -velocityY;
+
+            if (bottom > canvas.height) {
+               ball.top -= bottom-canvas.height;
+            }
+            if (bbox.top < 0) {
+               ball.top -= bbox.top;
+            }
+         }
+      };
+
+      function detectCollisions() {
+         if (ballMoving) {
+          // 如果小球处于运动状态，处理碰撞
+            handleEdgeCollisions();
+         }
+      };
+
+      function isPointInBall(x, y) {
+         return x > ball.left && x < ball.left + ball.width &&
+                y > ball.top  && y < ball.top  + ball.height;
+      }
+
+
+      // Event Handlers................................................
+
+      canvas.onmousedown = function (e) {
+         var location = windowToCanvas(e);
+
+         ballMoving = !ballMoving;
+
+         if (showInstructions)
+            showInstructions = false;
+      };
+
+      // Animation.....................................................
+
+      function animate(time) {
+         var elapsedTime;
+
+         if (lastTime === 0) {
+               lastTime = time;
+         }else {
+          // 清除canvas
+           context.clearRect(0,0,canvas.width,canvas.height);
+         
+           if (ballMoving) {
+            // 过去的时间
+              elapsedTime = parseFloat(time - lastTime) / 1000;
+              // 垂直方向和水平方向的位移
+              ball.left += velocityX * elapsedTime;
+              ball.top += velocityY * elapsedTime;
+
+              detectCollisions();
+           }
+            
+           lastTime = time;
+           // 绘制小球
+           ball.paint(context);
+           // 动画未开始之前显示提示语
+           if (showInstructions) {
+              context.fillStyle = 'rgba(100, 140, 230, 0.7)';
+              context.font = '24px Arial';
+              context.fillText('Click anywhere to start or stop the ball', 20, 40);
+           }
+         }
+         window.requestNextAnimationFrame(animate);
+      };
+
+
+      // Initialization................................................
+
+      ball.fillStyle = 'rgba(255,255,0,1.0)';
+      ball.left = 100;
+      ball.top = 100;
+
+      context.shadowColor = 'rgba(100,140,255,0.5)';
+      context.shadowBlur = 4;
+      context.shadowOffsetX = 2;
+      context.shadowOffsetY = 2;
+      context.font = '38px Arial';
+
+      window.requestNextAnimationFrame(animate);
+
+    </script>
+  </body>
+</html>

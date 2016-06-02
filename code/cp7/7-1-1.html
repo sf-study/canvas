@@ -41,6 +41,7 @@
         Canvas not supported
       </canvas>
 
+      <!-- 推进器canvas -->
       <canvas id='thrusterCanvas' width='100' height='100'>
          canvas not supported
       </canvas>
@@ -71,7 +72,9 @@
           fps = 60,
           arrow = LEFT,
 
+          // 假定平台到canvas底部的距离为10米
           PLATFORM_HEIGHT_IN_METERS = 10, // 10 meters
+          // 计算每米所对应的屏幕像素
           pixelsPerMeter = (canvas.height - LEDGE_TOP) /
                             PLATFORM_HEIGHT_IN_METERS,
 
@@ -80,59 +83,76 @@
             
             execute: function (sprite, context, time) {
                var now = +new Date();
+               // 如果是第一次执行，把现在的时间赋值给lastFrameTime，直接返回
                if (this.lastFrameTime == undefined) {
                   this.lastFrameTime = now;
                   return;
                }
 
                if (pushAnimationTimer.isRunning()) {
+                // 如果小球是处于移动状态
+                // 并且箭头向左，小球精灵的x左边减去要移动的像素
+                // 此处使用基于时间的运动，每秒移动的像素值
                   if (arrow === LEFT) sprite.left -= sprite.velocityX / fps;
                   else                sprite.left += sprite.velocityX / fps;
 
+                  // 如果小球还在高台上
                   if (isBallOnLedge()) {
+                    // 如果小球已经移动了200毫秒，则停止移动
                      if (pushAnimationTimer.getElapsedTime() > 200) {
                         pushAnimationTimer.stop();
                      }
                   }
                   else if ( ! fallingAnimationTimer.isRunning()) {
+                    // 如果小球没在下落，则开始下落
                      startFalling();
                      this.lastFrameTime = now;
                   }
                }
 
                if (fallingAnimationTimer.isRunning()) {
+                // 如果小球处于下落状态，计算小球每秒应该移动至的像素
                   sprite.top += sprite.velocityY / fps;
+                  // 根据时间和加速度计算每秒应该下落至的坐标
                   sprite.velocityY = GRAVITY_FORCE *
-                     (fallingAnimationTimer.getElapsedTime()/1000) * pixelsPerMeter;
+                     (fallingAnimationTimer.getElapsedTime()/1000) * pixelsPerMeter
 
                   if (sprite.top > canvas.height) {
+                    停止下落
                      stopFalling();
                   }
                }
             }
           },
          
+          // 推进器动画
           pushAnimationTimer    = new AnimationTimer(),
+          // 小球下落动画
           fallingAnimationTimer = new AnimationTimer(),
 
+          // 精灵，球
           ball = new Sprite('ball',
              {
                 paint: function (sprite, context) {
+                  // 绘制小球，并保存剪辑区域
                    context.save();
                    context.beginPath();
                    context.arc(sprite.left + sprite.width/2, sprite.top + sprite.height/2,
                                  BALL_RADIUS, 0, Math.PI*2, false);
                    context.clip();
 
+                   // 设置小球的阴影属性
                    context.shadowColor = 'rgba(0,0,255,0.7)';
                    context.shadowOffsetX = -4;
                    context.shadowOffsetY = -4;
                    context.shadowBlur = 8;
 
+                   // 描边
                    context.lineWidth = 2;
                    context.strokeStyle = 'rgba(100,100,195,0.8)';
                    context.stroke();
 
+                   // 绘制小球
                    context.beginPath();
                    context.arc(sprite.left + sprite.width/2, sprite.top + sprite.height/2,
                                  BALL_RADIUS/2, 0, Math.PI*2, false);
@@ -155,13 +175,16 @@
              {
                 paint: function (sprite, context) {
                    context.save();
+                   // 设置高台的阴影属性
                    context.shadowColor = 'rgba(0,0,0,0.5)';
                    context.shadowBlur = 8;
                    context.shadowOffsetX = 2;
                    context.shadowOffsetY = 2;
 
+                   // 填充属性
                    context.fillStyle = 'rgba(255,255,0,0.6)';
                    context.strokeStyle = 'rgba(0,0,0,0.6)';
+                   // 绘制高台
                    context.beginPath();
                    context.rect(sprite.left,sprite.top,sprite.width,sprite.height);
                    context.fill();
@@ -178,9 +201,13 @@
                pushAnimationTimer.stop();
             }
             arrow = LEFT;
+            // 推进器动画开始
+            // this.startTime = +new Date();
+            // this.running = true;
             pushAnimationTimer.start();
          }
 
+         // 小球右移
          function pushBallRight() {
             if (pushAnimationTimer.isRunning()) {
                pushAnimationTimer.stop();
@@ -190,21 +217,25 @@
          }
 
          function startFalling() {
+          // 开始下落
             fallingAnimationTimer.start();
+            // 开始的速度为0
             ball.velocityY = 0;
          }
 
          function stopFalling() {
+            // 停止
             fallingAnimationTimer.stop();
             pushAnimationTimer.stop();
-
+            // 让小球在回到平台上
             ball.left = LEDGE_LEFT + LEDGE_WIDTH/2 - BALL_RADIUS;
             ball.top = LEDGE_TOP - BALL_RADIUS*2;
-
+            // 速度归0
             ball.velocityY = 0;
          }
 
          function isBallOnLedge() {
+          // 返回，如果小球的中心点的x坐标大于高台的左边x坐标，并且，小球的左边x坐标小于高台的左边x坐标加高台的宽度
             return ball.left + BALL_RADIUS > LEDGE_LEFT &&
                    ball.left < LEDGE_LEFT + LEDGE_WIDTH;
          }
@@ -212,20 +243,22 @@
          // Paint functions...............................................
 
          function paintThruster() {
-            thrusterContext.clearRect(0,0,
-                                       thrusterCanvas.width,thrusterCanvas.height);
+          // 清除按钮canvas的所有内容
+            thrusterContext.clearRect(0,0,thrusterCanvas.width,thrusterCanvas.height);
+            // 如果推进动画正在执行，改变背景色
             if (pushAnimationTimer.isRunning())
                thrusterContext.fillStyle = 'rgba(255,255,0,0.5)';
             else
               thrusterContext.fillStyle = 'rgba(100,140,255,0.5)';
 
+            // 绘制三角形推进器
             paintArrow(thrusterContext);
          }
 
          function paintLeftArrow(context) {
             paintArrow(context);
          }
-            
+          // 绘制推进器按钮
          function paintArrow(context) {
             context.save();
             context.beginPath();
@@ -274,24 +307,32 @@
          }
 
          function animate(time) {
+            // 计算帧速率
             fps = calculateFps(time);
 
+            // 清除所有
             context.clearRect(0,0,canvas.width,canvas.height);
+            // 重新绘制网格
             drawGrid('lightgray', 10, 10);
             
+            
             ball.update(context, time);
+            
             ledge.update(context, time);
 
+            // 绘制小球
             ledge.paint(context);
+            // 绘制放小球的高台
             ball.paint(context);
 
+            // 绘制三角形推进器按钮
             paintThruster();
 
             window.requestNextAnimationFrame(animate);
          }
 
          // Event handlers................................................
-
+         // 点击推进器按钮
          thrusterCanvas.onmousedown = function canvasMouseDown(e) {
             var rect = thrusterCanvas.getBoundingClientRect(),
             x = e.x || e.clientX,
@@ -300,6 +341,7 @@
             e.preventDefault();
             e.stopPropagation();
 
+            // 推进器推动小球左移
             pushBallLeft();
          };
 
@@ -335,6 +377,7 @@
 
          // Initialization................................................
 
+         // 推进器属性设置
          thrusterContext.strokeStyle = 'rgba(100,140,230,0.6)';
          thrusterContext.shadowColor = 'rgba(0,0,0,0.3)';
          thrusterContext.shadowBlur = 6;
