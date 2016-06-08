@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		<title>转盘抽奖</title>
+		<style type="text/css">
+			html,body{
+				width: 100%;
+				height: 100%;
+			}
+			#my_wrapper{
+				position: relative;;
+				margin: 0 auto;
+				height: 100%;
+				text-align: center;
+				background-color: #CAA27D;
+			}
+			canvas{
+				display: block;
+			}
+			*{
+				margin-top: 0;
+				margin-right: 0;
+				margin-bottom: 0;
+				margin-left: 0;
+				padding-top: 0;
+				padding-right: 0;
+				padding-bottom: 0;
+				padding-left: 0;
+			}
+			*:after,*:before,*{
+			    -webkit-box-sizing: border-box;
+			    -moz-box-sizing: border-box;
+			    box-sizing: border-box;
+			}
+			#box{
+				position: absolute;
+				top: 0;
+				right: 0;
+				bottom: 0;
+				left: 0;
+				background-color: rgba(0,0,0,.5);
+				font-size: 18px;
+				line-height: 50px;
+				display: none;
+			}
+			#box p{
+				position: absolute;
+				top: 50%;
+				width:50%;
+				left: 25%;
+				height:200px;
+				background-color:rgb(103, 232, 219);
+				margin-top:-25%;
+				font-size:18px;
+				color:#fff;
+				line-height: 100px;
+			}
+			#close{
+				position: absolute;
+				right: 25%;
+				top: 50%;
+				margin-top:-25%;
+				width: 50px;
+				height: 27px;
+				border: 1px solid #ccc;
+				border-radius: 8px;
+				color: #666;
+				cursor: pointer;
+				line-height: 1.5em;
+			}
+		</style>
+	</head>
+	<body>
+	<div id="my_wrapper">
+		<canvas id="canvas">
+			canvas is not supported
+		</canvas>
+		<input id="btn" type="button" style="width:100px;height:50px;border:0;background-color:rgb(103, 232, 219);color:#fff;outline:none" value="点击开始抽奖" />
+		<p style="width:100%;height:30px;background-color:rgb(103, 232, 219);margin-top:10px;font-size:18px;color:#fff;line-height:30px;" id="p1">
+			
+		</p>
+		<div id="box">
+			<p></p>
+			<span class="close" id="close">关闭</span>
+		</div>
+	</div>
+
+	<script type="text/javascript" src='files/stopwatch.js'></script>
+	<!-- <script type="text/javascript" src='files/animationTimer.js'></script> -->
+	<script type="text/javascript" src='files/requestNextAnimationFrame.js'></script>
+	<script type="text/javascript">
+		var canvas=document.getElementById('canvas'),
+			context=canvas.getContext('2d');
+		var prizeCount=8,VELOCITY=Math.PI*2,
+			lastTime=0,
+			turn=false,
+			wy=0,
+			startTime=0,
+			stop=1000,
+			ani,
+			fps=60;
+		var btn=document.getElementById('btn'),
+			p=document.getElementById('p1'),
+			box=document.getElementById('box'),
+			close=document.getElementById('close');
+
+		var stopwatch=new Stopwatch();
+
+		var deg=(360/prizeCount);
+		var unitAngle=(Math.PI/180)*deg;
+
+		var json=["奖品1","奖品2","奖品3","奖品4","奖品5","奖品6","奖品7","奖品8",],
+			jp=undefined;
+
+		// functions........
+		setCanvas();
+		function setCanvas(){
+			var w=window.innerWidth;
+			var h=window.innerHeight;
+			if(w>640){
+				document.getElementById('my_wrapper').style.width=640+'px';
+				canvas.width=canvas.height=640;
+			}else{
+				canvas.width=canvas.height=w;
+			}
+
+		}
+
+		function drawOutCircle(){
+			context.beginPath();
+			context.strokeStyle='#efc314';
+			context.fillStyle='#efc314';
+			context.arc(0,0,canvas.width/3+10,0,Math.PI*2,false);
+			context.stroke();
+			// context.fill();
+		}
+
+		function drawcircle(){
+			context.beginPath();
+			context.strokeStyle='#ccc';
+			context.fillStyle='#fff';
+			context.arc(0,0,canvas.width/3,0,Math.PI*2,true);
+			context.stroke();
+			context.fill();
+
+			drawOutCircle();
+		}
+
+		function drawCenterCilcle(){
+			context.beginPath();
+			context.fillStyle='#d34b4b';
+			context.strokeStyle='#efc314';
+			context.arc(canvas.width/2,canvas.width/2,10,0,Math.PI*2);
+			context.stroke();
+			context.fill();
+		}
+
+		function drwaHand(){
+			context.beginPath();
+			context.fillStyle='#d34b4b';
+			context.strokeStyle='#efc314';
+			context.moveTo(canvas.width/2-10,canvas.width/2);
+			context.lineTo(canvas.width/2,canvas.width/2-60);
+			context.lineTo(canvas.width/2+10,canvas.width/2);
+			context.stroke();
+			context.fill();
+		}
+
+		function drawLine(){
+			for(var i=0;i<prizeCount;i++){
+				angle=unitAngle*i-(unitAngle/2);
+				context.strokeStyle='#ccc';
+				context.beginPath();
+				context.moveTo(Math.cos(angle)*10,Math.sin(angle)*10);
+				context.lineTo(Math.cos(angle)*(canvas.width/3),Math.sin(angle)*(canvas.width/3));
+				context.stroke();
+			}
+		}
+
+		function drwaText(){
+			for(var i=0;i<8;i++){
+				tangle=-(Math.PI/2-unitAngle/2)-(i*unitAngle+(Math.PI/180)*(deg/2));
+				var x=Math.cos(tangle)*(canvas.width/3),
+				y=Math.sin(tangle)*(canvas.width/3);
+				var textx=0,texty=0;
+
+				context.save();
+				context.strokeStyle='#ef145c';
+				context.font="20px monospace";
+				context.translate(x,y);
+				context.rotate(Math.PI/2+tangle);
+				context.beginPath();
+				context.strokeText(json[i],textx-20,texty+30);
+				
+				context.restore();
+			}
+			
+			
+		}
+
+		function drawHands(){
+			// 绘制中间的圆圈
+			drawCenterCilcle();
+			// 绘制指针
+			drwaHand();
+		}
+
+		function drawdisk(turn,angle){
+			context.save();
+			context.translate(canvas.width/2,canvas.height/2);
+			if(turn){
+				context.rotate(angle);
+			}
+			// 绘制转盘
+			drawcircle();
+			// 绘制转盘的分割线
+			drawLine();
+			// 绘制奖品文字
+			drwaText();
+			context.restore();
+		}
+
+		drawdisk();
+		drawHands();
+
+		// 计算帧速率函数
+		function calculateFps(now) {
+           var fps = 1000 / (now - lastTime);
+           lastTime = now;
+           return fps; 
+        }
+
+        // 清除背景
+        function erase() {
+	        context.clearRect(0,0,canvas.width,canvas.height);
+	    }
+		
+		function animate(time){
+			if (time === undefined) {
+	            time = +new Date;
+	         }
+			// 帧速率
+			fps = calculateFps(time);
+			// 如果还没开始播放动画
+			if(stopwatch.running){
+				// if(stopwatch.getElapsedTime()>(stop-2000)){
+				// 	// VELOCITY=5;
+				// }
+				
+				erase();
+				wy=wy+VELOCITY/fps;
+				
+				turn=true;
+				drawdisk(turn,wy);
+				drawHands();
+				var onstop=(1000/prizeCount)*(jp-1)
+				console.log(1000/prizeCount);
+				if(stopwatch.getElapsedTime()>(stop+onstop)){
+					stopwatch.stop();
+					// window.requestNextAnimationFrame(function(){
+					// 	erase();
+					// 	wy
+					// });
+					var textNode=document.createTextNode("恭喜，你获得了"+json[jp-1]);
+					box.style.display='block';
+					while(box.getElementsByTagName('p')[0].hasChildNodes()) 
+				    {
+				        box.getElementsByTagName('p')[0].removeChild(box.getElementsByTagName('p')[0].firstChild);
+				    }
+					// box.getElementsByTagName('p')[0].removeChild();
+					box.getElementsByTagName('p')[0].appendChild(textNode);
+				}
+				
+			}
+			window.requestNextAnimationFrame(animate);
+		}
+
+		// event...
+		btn.onclick=function(e){
+			if(!stopwatch.running){
+				stopwatch.start();
+				startTime=stopwatch.startTime;
+				btn.value='再一次';
+				jp=Math.floor(Math.random()*(8-1+1)+1);
+				console.log(jp);
+			}else{
+				// stopwatch.stop();
+			}
+			
+		};
+
+		close.onclick=function(){
+			box.style.display='none';
+			erase();
+			drawdisk();
+			drawHands();
+			wy=0;
+		}
+		window.requestNextAnimationFrame(animate);
+
+
+	</script>
+	</body>
+</html>
